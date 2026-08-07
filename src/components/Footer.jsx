@@ -3,7 +3,7 @@ import { BookOpen, Heart } from 'lucide-react';
 import { useApp } from '../context';
 
 export default function Footer() {
-  const { goHome, goSearch, setShowAuth, setShowSell, user } = useApp();
+  const { goHome, goSearch, setShowAuth, setShowSell, user, setStaticPage } = useApp();
 
   return (
     <footer style={{
@@ -55,12 +55,33 @@ export default function Footer() {
           {/* Safety */}
           <div>
             <h4 style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>Safety Tips</h4>
-            <ul style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.9, paddingLeft: '1.1rem' }}>
+            <ul style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.9, paddingLeft: '1.1rem', margin: 0 }}>
               <li>Meet in public places</li>
               <li>Inspect before paying</li>
               <li>Use UPI for safe payment</li>
               <li>Report suspicious sellers</li>
             </ul>
+          </div>
+
+          {/* Legal & Help */}
+          <div>
+            <h4 style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>Company & Help</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {[
+                { label: 'About Us', page: 'about' },
+                { label: 'FAQs', page: 'faqs' },
+                { label: 'Terms & Conditions', page: 'terms' },
+                { label: 'Privacy Policy', page: 'privacy' },
+                { label: 'Contact Support', page: 'support' },
+              ].map(l => (
+                <button key={l.label} onClick={() => setStaticPage(l.page)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.88rem', textAlign: 'left', cursor: 'pointer', padding: 0, transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.target.style.color = '#f1f5f9'}
+                  onMouseLeave={e => e.target.style.color = '#64748b'}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

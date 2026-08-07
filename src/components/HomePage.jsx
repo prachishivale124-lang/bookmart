@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Search, TrendingUp, Zap, BookOpen, ArrowRight, Star, Users, ShieldCheck } from 'lucide-react';
+import { Search, TrendingUp, Zap, BookOpen, ArrowRight, Star, Users, ShieldCheck, CheckCircle } from 'lucide-react';
 import BookCard from './BookCard';
 import { useApp } from '../context';
 import { BOOKS, CATEGORIES } from '../data';
@@ -49,14 +49,29 @@ export default function HomePage() {
         }} />
 
         <div style={{ position: 'relative', maxWidth: 780, margin: '0 auto' }}>
-          {/* Badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-            background: 'rgba(108,99,255,0.12)', border: '1px solid rgba(108,99,255,0.3)',
-            borderRadius: 999, padding: '0.3rem 0.9rem', marginBottom: '1.25rem',
-            fontSize: '0.8rem', fontWeight: 600, color: '#818cf8'
-          }}>
-            <Zap size={13} fill="#818cf8" color="#818cf8" /> India's #1 Book Exchange Platform
+          {/* Badges */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+              background: 'rgba(108,99,255,0.12)', border: '1px solid rgba(108,99,255,0.3)',
+              borderRadius: 999, padding: '0.3rem 0.9rem',
+              fontSize: '0.8rem', fontWeight: 600, color: '#818cf8'
+            }}>
+              <Zap size={13} fill="#818cf8" color="#818cf8" /> India's #1 Book Exchange Platform
+            </div>
+            
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+              background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 999, padding: '0.3rem 0.9rem',
+              fontSize: '0.8rem', fontWeight: 600, color: '#10b981'
+            }}>
+              <span style={{ 
+                width: 8, height: 8, borderRadius: '50%', background: '#10b981', 
+                boxShadow: '0 0 8px #10b981', animation: 'pulse 2s infinite' 
+              }}></span> 
+              1,420 Readers Online Now
+            </div>
           </div>
 
           <h1 style={{
@@ -128,11 +143,10 @@ export default function HomePage() {
 
       {/* =========== STATS =========== */}
       <div style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.5rem 1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
-          <StatCard icon="📚" value={`${allBooks.length}+`} label="Books Listed" />
-          <StatCard icon="👤" value="2,400+" label="Active Readers" />
-          <StatCard icon="🔄" value="1,200+" label="Exchanges Made" />
-          <StatCard icon="⭐" value="4.8/5" label="Avg. Rating" />
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.5rem 1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <StatCard icon="📚" value="50,000+" label="Books Listed" />
+          <StatCard icon="👥" value="25,000+" label="Verified Buyers & Sellers" />
+          <StatCard icon="💰" value="₹10L+" label="Saved by Readers" />
         </div>
       </div>
 
@@ -260,31 +274,59 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Trust & Safety Banner */}
+        <section style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(16, 185, 129, 0.2)',
+          borderRadius: 20, padding: '2rem 1.5rem',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem',
+          marginBottom: '3rem', position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{ 
+            position: 'absolute', top: '-50px', left: '20%', width: 200, height: 200, 
+            background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)', pointerEvents: 'none' 
+          }} />
+          
+          {[
+            { icon: <ShieldCheck size={28} color="#10b981" />, title: 'Buyer Protection', desc: 'Secure payments & full refunds for items not as described.' },
+            { icon: <CheckCircle size={28} color="#10b981" />, title: 'Verified Books', desc: 'Every listing is community-reviewed to ensure quality.' },
+            { icon: <TrendingUp size={28} color="#10b981" />, title: 'Easy Returns', desc: 'Hassle-free return policy if the book condition doesn\'t match.' }
+          ].map((item, idx) => (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.75rem' }}>
+              <div style={{ background: 'rgba(16,185,129,0.1)', padding: '1rem', borderRadius: '50%' }}>
+                {item.icon}
+              </div>
+              <h3 style={{ color: '#f1f5f9', fontSize: '1.05rem', fontWeight: 700 }}>{item.title}</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5 }}>{item.desc}</p>
+            </div>
+          ))}
+        </section>
+
         {/* How it Works */}
         <section>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <h2 className="section-title" style={{ marginBottom: '0.4rem' }}>How BookMart Works</h2>
             <p style={{ color: '#64748b' }}>Simple, fast, and trustworthy</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
             {[
-              { step: '01', icon: '🔍', title: 'Search & Browse', desc: 'Find books by title, author, or genre. Filter by condition and price.' },
-              { step: '02', icon: '📞', title: 'Contact Seller', desc: 'Click "Contact Seller" to connect directly. No middlemen involved.' },
-              { step: '03', icon: '💰', title: 'Pay Securely', desc: 'Pay via UPI, PhonePe, Google Pay, or opt for Cash on Delivery.' },
-              { step: '04', icon: '📬', title: 'Get Your Book', desc: 'Arrange delivery or meetup with the seller at your convenience.' },
+              { step: '01', icon: '🔍', title: 'Search or List a Book', desc: 'Find your next great read by browsing our vast collection, or easily list books you want to sell.' },
+              { step: '02', icon: '💬', title: 'Chat with Buyer/Seller', desc: 'Use our secure in-app messaging to negotiate prices, ask questions, and arrange meetups.' },
+              { step: '03', icon: '🔒', title: 'Secure Payment & Shipping', desc: 'Pay safely via our trusted payment gateways and track your shipment until it reaches your door.' },
             ].map(item => (
               <div key={item.step} style={{
                 background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 16, padding: '1.5rem',
-                transition: 'transform 0.3s, border-color 0.3s'
+                borderRadius: 16, padding: '1.75rem 1.5rem',
+                transition: 'transform 0.3s, border-color 0.3s',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
               }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(108,99,255,0.3)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
               >
-                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#6c63ff', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>STEP {item.step}</div>
-                <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{item.icon}</div>
-                <h3 style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '1rem', marginBottom: '0.4rem' }}>{item.title}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.6 }}>{item.desc}</p>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6c63ff', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>STEP {item.step}</div>
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{item.icon}</div>
+                <h3 style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{item.title}</h3>
+                <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.6 }}>{item.desc}</p>
               </div>
             ))}
           </div>

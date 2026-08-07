@@ -7,6 +7,11 @@ import BookDetailsPage from './components/BookDetailsPage';
 import AuthModal from './components/AuthModal';
 import SellModal from './components/SellModal';
 import CheckoutModal from './components/CheckoutModal';
+import ProfileModal from './components/ProfileModal';
+import OrdersDashboard from './components/OrdersDashboard';
+import TrackShipmentModal from './components/TrackShipmentModal';
+import StaticInfoModal from './components/StaticInfoModal';
+import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import { CheckCircle, Info } from 'lucide-react';
 
@@ -22,7 +27,10 @@ function Toast() {
 }
 
 function AppInner() {
-  const { page, showAuth, showSell, checkoutBook } = useApp();
+  const {
+    page, showAuth, showSell, checkoutBook,
+    showProfile, showOrders, trackOrder, staticPage, showCart
+  } = useApp();
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -40,6 +48,11 @@ function AppInner() {
       {showAuth && <AuthModal />}
       {showSell && <SellModal />}
       {checkoutBook && <CheckoutModal />}
+      {showProfile && <ProfileModal />}
+      {showOrders && <OrdersDashboard />}
+      {trackOrder && <TrackShipmentModal />}
+      {staticPage && <StaticInfoModal />}
+      {showCart && <CartDrawer />}
 
       {/* Toast */}
       <Toast />

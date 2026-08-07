@@ -1,18 +1,33 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('bookmart_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('bookmart_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [books, setBooks] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
   const [showSell, setShowSell] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showOrders, setShowOrders] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [trackOrder, setTrackOrder] = useState(null);
+  const [staticPage, setStaticPage] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [checkoutBook, setCheckoutBook] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [toast, setToast] = useState(null);
-  const [page, setPage] = useState('home'); // 'home' | 'search' | 'book'
+  const [page, setPage] = useState('home');
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -20,15 +35,80 @@ export function AppProvider({ children }) {
   };
 
   const login = (userData) => {
-    setUser(userData);
+    const fullUserData = {
+      ...userData,
+      joinedDate: new Date().toISOString(),
+      savedPaymentMethods: [],
+      listedBooks: []
+    };
+    setUser(fullUserData);
+    localStorage.setItem('bookmart_user', JSON.stringify(fullUserData));
+    
+    // Add mock orders for demo if none exist
+    if (orders.length === 0) {
+      const mockOrders = [
+        {
+          id: 'ORD-8X9A21',
+          date: new Date().toISOString(),
+          title: 'The Psychology of Money',
+          seller: 'Ramesh K.',
+          price: 299,
+          status: 'Shipped',
+          thumbnail: 'https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=400&q=80'
+        }
+      ];
+      setOrders(mockOrders);
+      localStorage.setItem('bookmart_orders', JSON.stringify(mockOrders));
+    }
+    
     setShowAuth(false);
     showToast(`Welcome back, ${userData.name}! 🎉`);
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('bookmart_user');
     showToast('You have been logged out.', 'info');
   };
+
+  const addOrder = (order) => {
+    const newOrder = {
+      ...order,
+      id: `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+      date: new Date().toISOString(),
+      status: 'Processing',
+      carrier: 'Delhivery',
+      awb: `AWB-${Math.floor(10000000 + Math.random() * 90000000)}`,
+    };
+    const newOrders = [newOrder, ...orders];
+    setOrders(newOrders);
+    localStorage.setItem('bookmart_orders', JSON.stringify(newOrders));
+    return newOrder;
+  };
+
+  const addToCart = (book) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === book.id);
+      if (existing) {
+        showToast(`Qty updated for "${book.title}"`);
+        return prev.map(i => i.id === book.id ? { ...i, qty: i.qty + 1 } : i);
+      }
+      showToast(`"${book.title}" added to cart 🛒`);
+      return [...prev, { ...book, qty: 1 }];
+    });
+  };
+
+  const removeFromCart = (bookId) => {
+    setCart(prev => prev.filter(i => i.id !== bookId));
+  };
+
+  const updateCartQty = (bookId, delta) => {
+    setCart(prev => prev
+      .map(i => i.id === bookId ? { ...i, qty: Math.max(1, i.qty + delta) } : i)
+    );
+  };
+
+  const clearCart = () => setCart([]);
 
   const addBook = (book) => {
     const newBook = {
@@ -72,8 +152,15 @@ export function AppProvider({ children }) {
     <AppContext.Provider value={{
       user, login, logout,
       books, addBook,
+      orders, addOrder,
+      cart, addToCart, removeFromCart, updateCartQty, clearCart,
       showAuth, setShowAuth,
       showSell, setShowSell,
+      showProfile, setShowProfile,
+      showOrders, setShowOrders,
+      showCart, setShowCart,
+      trackOrder, setTrackOrder,
+      staticPage, setStaticPage,
       selectedBook, setSelectedBook,
       checkoutBook, setCheckoutBook,
       searchQuery, setSearchQuery,
@@ -87,4 +174,5 @@ export function AppProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useApp = () => useContext(AppContext);

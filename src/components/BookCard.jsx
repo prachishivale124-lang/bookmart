@@ -1,10 +1,10 @@
 import React from 'react';
-import { Star, MapPin, Clock } from 'lucide-react';
+import { Star, MapPin, Clock, ShoppingCart } from 'lucide-react';
 import { useApp } from '../context';
 import { getConditionClass } from '../data';
 
 export default function BookCard({ book }) {
-  const { openBook } = useApp();
+  const { openBook, addToCart } = useApp();
   const condClass = getConditionClass(book.condition);
 
   return (
@@ -33,6 +33,24 @@ export default function BookCard({ book }) {
         }}>
           ₹{book.price}
         </div>
+        {/* Add to cart button */}
+        <button
+          onClick={e => { e.stopPropagation(); addToCart(book); }}
+          title="Add to cart"
+          style={{
+            position: 'absolute', top: '0.55rem', right: '0.55rem',
+            width: 30, height: 30, borderRadius: 8,
+            background: 'rgba(108,99,255,0.85)', border: 'none',
+            color: 'white', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            opacity: 0, transition: 'opacity 0.2s, transform 0.2s',
+            backdropFilter: 'blur(4px)',
+            boxShadow: '0 2px 8px rgba(108,99,255,0.5)'
+          }}
+          className="card-cart-btn"
+        >
+          <ShoppingCart size={14} />
+        </button>
       </div>
 
       {/* Details */}

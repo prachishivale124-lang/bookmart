@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Search, BookOpen, ShoppingBag, User, LogOut, Menu, X, ChevronDown, Plus } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, BookOpen, ShoppingCart, User, LogOut, Menu, X, ChevronDown, Plus, Package } from 'lucide-react';
 import { useApp } from '../context';
 
 export default function Navbar() {
-  const { user, logout, setShowAuth, setShowSell, goHome, goSearch, searchQuery, setSearchQuery, page } = useApp();
+  const { user, logout, setShowAuth, setShowSell, goHome, goSearch, page, setShowProfile, setShowOrders, cart, setShowCart } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [localSearch, setLocalSearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -28,7 +40,7 @@ export default function Navbar() {
     <>
       {/* Desktop / Tablet Navbar */}
       <nav style={{
-        position: 'sticky', top: 0, zIndex: 40,
+        position: 'sticky', top: 0, zIndex: 100,
         background: 'rgba(10,14,26,0.85)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -78,24 +90,167 @@ export default function Navbar() {
               <Search size={16} /> Browse
             </button>
 
+            {/* Cart button with badge */}
+            <button
+              onClick={() => setShowCart(true)}
+              style={{
+                position: 'relative', background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+                color: '#f1f5f9', cursor: 'pointer', padding: '0.5rem 0.65rem',
+                display: 'flex', alignItems: 'center', gap: '0.4rem', transition: 'background 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(108,99,255,0.15)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            >
+              <ShoppingCart size={17} />
+              {cart.length > 0 && (
+                <span style={{
+                  position: 'absolute', top: -6, right: -6,
+                  background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
+                  color: 'white', borderRadius: '50%', width: 18, height: 18,
+                  fontSize: '0.65rem', fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(108,99,255,0.5)'
+                }}>
+                  {cart.reduce((s, i) => s + i.qty, 0)}
+                </span>
+              )}
+            </button>
+
             <button onClick={handleSell} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Plus size={16} /> Sell a Book
             </button>
 
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #6c63ff, #10b981)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
-                  color: 'white'
-                }}>
-                  {user.name.slice(0, 2).toUpperCase()}
-                </div>
-                <button onClick={logout} className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <LogOut size={15} />
+              <div style={{ position: 'relative' }} ref={dropdownRef}>
+                {/* Avatar button */}
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(prev => !prev)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                    cursor: 'pointer', padding: '0.2rem 0.4rem', borderRadius: 999,
+                    background: 'none', border: 'none',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(108,99,255,0.12)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  aria-haspopup="true"
+                  aria-expanded={dropdownOpen}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #6c63ff, #10b981)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.8rem', fontWeight: 700, color: 'white',
+                    flexShrink: 0
+                  }}>
+                    {user.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <ChevronDown
+                    size={14}
+                    color="#94a3b8"
+                    style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  />
                 </button>
+
+                {/* Transparent backdrop to capture outside-clicks on any z-layer */}
+                {dropdownOpen && (
+                  <div
+                    style={{
+                      position: 'fixed', inset: 0,
+                      zIndex: 9998
+                    }}
+                    onClick={() => setDropdownOpen(false)}
+                  />
+                )}
+
+                {/* Dropdown panel */}
+                {dropdownOpen && (
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                    width: 230, zIndex: 9999,
+                    background: 'rgba(13,11,30,0.98)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(108,99,255,0.25)',
+                    borderRadius: 14,
+                    boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(108,99,255,0.1)',
+                    display: 'flex', flexDirection: 'column',
+                    padding: '0.4rem',
+                    pointerEvents: 'auto'
+                  }}>
+                    {/* User info header */}
+                    <div style={{
+                      padding: '0.6rem 0.8rem 0.8rem',
+                      borderBottom: '1px solid rgba(255,255,255,0.07)',
+                      marginBottom: '0.35rem'
+                    }}>
+                      <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '0.9rem', marginBottom: '0.15rem' }}>{user.name}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email || user.phone}</div>
+                    </div>
+
+                    {/* My Profile */}
+                    <button
+                      type="button"
+                      onClick={() => { setShowProfile(true); setDropdownOpen(false); }}
+                      style={{
+                        width: '100%', textAlign: 'left',
+                        padding: '0.65rem 0.8rem',
+                        display: 'flex', alignItems: 'center', gap: '0.6rem',
+                        borderRadius: 10, border: 'none', cursor: 'pointer',
+                        background: 'none',
+                        color: '#e2e8f0', fontSize: '0.9rem', fontWeight: 500,
+                        transition: 'background 0.15s, color 0.15s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.18)'; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#e2e8f0'; }}
+                    >
+                      <User size={16} color="#818cf8" /> My Profile
+                    </button>
+
+                    {/* My Orders */}
+                    <button
+                      type="button"
+                      onClick={() => { setShowOrders(true); setDropdownOpen(false); }}
+                      style={{
+                        width: '100%', textAlign: 'left',
+                        padding: '0.65rem 0.8rem',
+                        display: 'flex', alignItems: 'center', gap: '0.6rem',
+                        borderRadius: 10, border: 'none', cursor: 'pointer',
+                        background: 'none',
+                        color: '#e2e8f0', fontSize: '0.9rem', fontWeight: 500,
+                        transition: 'background 0.15s, color 0.15s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.18)'; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#e2e8f0'; }}
+                    >
+                      <Package size={16} color="#818cf8" /> My Orders
+                    </button>
+
+                    {/* Separator */}
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', margin: '0.3rem 0.4rem' }} />
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      onClick={() => { logout(); setDropdownOpen(false); }}
+                      style={{
+                        width: '100%', textAlign: 'left',
+                        padding: '0.65rem 0.8rem',
+                        display: 'flex', alignItems: 'center', gap: '0.6rem',
+                        borderRadius: 10, border: 'none', cursor: 'pointer',
+                        background: 'none',
+                        color: '#f87171', fontSize: '0.9rem', fontWeight: 500,
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      <LogOut size={16} color="#f87171" /> Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button onClick={() => setShowAuth(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -174,11 +329,19 @@ export default function Navbar() {
           <Plus size={18} /> Sell a Book
         </button>
 
-        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           {user ? (
-            <button onClick={() => { logout(); setMobileOpen(false); }} className="nav-link" style={{ width: '100%', textAlign: 'left', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#ef4444' }}>
-              <LogOut size={18} /> Logout
-            </button>
+            <>
+              <button onClick={() => { setShowProfile(true); setMobileOpen(false); }} className="nav-link" style={{ width: '100%', textAlign: 'left', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <User size={18} /> My Profile
+              </button>
+              <button onClick={() => { setShowOrders(true); setMobileOpen(false); }} className="nav-link" style={{ width: '100%', textAlign: 'left', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Package size={18} /> My Orders
+              </button>
+              <button onClick={() => { logout(); setMobileOpen(false); }} className="nav-link" style={{ width: '100%', textAlign: 'left', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#ef4444' }}>
+                <LogOut size={18} /> Logout
+              </button>
+            </>
           ) : (
             <button onClick={() => { setShowAuth(true); setMobileOpen(false); }} className="btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
               <User size={16} /> Login / Sign Up

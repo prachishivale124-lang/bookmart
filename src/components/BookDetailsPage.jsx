@@ -16,7 +16,7 @@ export default function BookDetailsPage() {
     if (!user) {
       setShowAuth(true);
     } else {
-      setCheckoutBook(book);
+      setCheckoutBook([book]);
     }
   };
 
