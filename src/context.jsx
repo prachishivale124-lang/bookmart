@@ -4,13 +4,29 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('bookmart_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('bookmart_user');
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      // Ensure the user object has at minimum a name field
+      if (!parsed || typeof parsed !== 'object') { localStorage.removeItem('bookmart_user'); return null; }
+      return parsed;
+    } catch (e) {
+      localStorage.removeItem('bookmart_user');
+      return null;
+    }
   });
   
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('bookmart_orders');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('bookmart_orders');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      localStorage.removeItem('bookmart_orders');
+      return [];
+    }
   });
 
   const [books, setBooks] = useState([]);
