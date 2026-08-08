@@ -145,7 +145,7 @@ export default function Navbar() {
                     fontSize: '0.8rem', fontWeight: 700, color: 'white',
                     flexShrink: 0
                   }}>
-                    {user.name.slice(0, 2).toUpperCase()}
+                    {(user?.name ?? '??').slice(0, 2).toUpperCase()}
                   </div>
                   <ChevronDown
                     size={14}
@@ -310,7 +310,7 @@ export default function Navbar() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1rem', fontWeight: 700, color: 'white'
             }}>
-              {user.name.slice(0, 2).toUpperCase()}
+              {(user?.name ?? '??').slice(0, 2).toUpperCase()}
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f1f5f9' }}>{user.name}</div>

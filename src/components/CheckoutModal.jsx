@@ -33,15 +33,29 @@ export default function CheckoutModal() {
 
   const setAddr = (k) => (e) => setAddress(a => ({ ...a, [k]: e.target.value }));
 
-  const processOrder = (status, pid = null) => {
-    items.forEach(item => {
-      addOrder({
-        ...item,
-        price: item.price * (item.qty || 1),
-        status: status,
-        paymentId: pid,
-        date: new Date().toISOString()
-      });
+  const processOrder = (paymentStatus, pid = null) => {
+    // Build a single consolidated order object (not one per item)
+    const sellerName = items.length === 1
+      ? (items[0].seller?.name || items[0].seller || 'Unknown Seller')
+      : 'Multiple Sellers';
+
+    addOrder({
+      items: items.map(item => ({
+        id: item.id,
+        title: item.title || 'Untitled Book',
+        price: item.price,
+        qty: item.qty || 1,
+        images: item.images || [],
+        seller: typeof item.seller === 'string'
+          ? { name: item.seller }
+          : (item.seller || { name: 'Unknown' }),
+      })),
+      totalAmount: total,
+      paymentStatus,
+      orderStatus: 'Processing',
+      shippingAddress: { ...address },
+      paymentId: pid,
+      sellerName,
     });
 
     if (isCartCheckout) {
@@ -57,7 +71,7 @@ export default function CheckoutModal() {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-        processOrder('Processing');
+        processOrder('COD');
         showToast('Order placed successfully! 🎉', 'success');
       }, 1500);
       return;
@@ -101,7 +115,7 @@ export default function CheckoutModal() {
              return;
           }
           setLoading(false);
-          processOrder('Processing', response.razorpay_payment_id);
+          processOrder('Paid', response.razorpay_payment_id);
           showToast(`Payment successful! Ref: ${response.razorpay_payment_id}`, 'success');
         },
         modal: {

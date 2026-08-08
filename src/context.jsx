@@ -49,12 +49,23 @@ export function AppProvider({ children }) {
       const mockOrders = [
         {
           id: 'ORD-8X9A21',
-          date: new Date().toISOString(),
-          title: 'The Psychology of Money',
-          seller: 'Ramesh K.',
-          price: 299,
-          status: 'Shipped',
-          thumbnail: 'https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=400&q=80'
+          date: new Date(Date.now() - 86400000 * 3).toISOString(),
+          items: [
+            {
+              id: 9901,
+              title: 'The Psychology of Money',
+              seller: { name: 'Ramesh K.' },
+              price: 299,
+              qty: 1,
+              images: ['https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=400&q=80']
+            }
+          ],
+          totalAmount: 299,
+          paymentStatus: 'Paid',
+          orderStatus: 'Shipped',
+          shippingAddress: { name: userData.name || 'You', address: '123 Main St', city: 'Mumbai', pincode: '400001', phone: userData.phone || '' },
+          carrier: 'Delhivery',
+          awb: 'AWB-56781234'
         }
       ];
       setOrders(mockOrders);
@@ -62,7 +73,14 @@ export function AppProvider({ children }) {
     }
     
     setShowAuth(false);
-    showToast(`Welcome back, ${userData.name}! 🎉`);
+    showToast(`Welcome back, ${userData?.name ?? 'there'}! 🎉`);
+  };
+
+  const updateUser = (updatedFields) => {
+    const updated = { ...user, ...updatedFields };
+    setUser(updated);
+    localStorage.setItem('bookmart_user', JSON.stringify(updated));
+    showToast('Profile updated successfully! ✅');
   };
 
   const logout = () => {
@@ -73,10 +91,15 @@ export function AppProvider({ children }) {
 
   const addOrder = (order) => {
     const newOrder = {
-      ...order,
       id: `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
       date: new Date().toISOString(),
-      status: 'Processing',
+      // New consolidated structure
+      items: order.items || [],
+      totalAmount: order.totalAmount || 0,
+      paymentStatus: order.paymentStatus || 'Processing',
+      orderStatus: order.orderStatus || 'Processing',
+      shippingAddress: order.shippingAddress || null,
+      paymentId: order.paymentId || null,
       carrier: 'Delhivery',
       awb: `AWB-${Math.floor(10000000 + Math.random() * 90000000)}`,
     };
@@ -150,7 +173,7 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      user, login, logout,
+      user, login, logout, updateUser,
       books, addBook,
       orders, addOrder,
       cart, addToCart, removeFromCart, updateCartQty, clearCart,
